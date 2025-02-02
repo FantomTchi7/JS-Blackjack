@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Black Jack</title>
-        <link rel="stylesheet" href="blackjack.css">
-        <script src="blackjack.js"></script>
-    </head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Blackjack</title>
+    <link rel="stylesheet" href="blackjack.css">
+</head>
+<body>
+    <div class="container">
+        <h1>JS Blackjack</h1>
+        
+        <div class="game-area">
+            <div class="dealer-section">
+                <h2>Dealer: <span id="dealer-sum">0</span></h2>
+                <svg id="dealer-cards" width="900" height="250" 
+                     xmlns="http://www.w3.org/2000/svg"
+                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                </svg>
+            </div>
 
-    <body>
-        <h2>Dealer: <span id="dealer-sum"></span></h2>
-        <div id="dealer-cards">
-            <img id="hidden" src="./cards/BACK.png">
+            <div class="player-section">
+                <h2>Player: <span id="player-sum">0</span></h2>
+                <svg id="player-cards" width="900" height="250"
+                     xmlns="http://www.w3.org/2000/svg"
+                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                </svg>
+            </div>
         </div>
 
-        <h2>You: <span id="your-sum"></span></h2>
-        <div id="your-cards"></div>
+        <div class="controls">
+            <button id="deal-button">Deal</button>
+            <button id="hit-button" disabled>Hit</button>
+            <button id="stand-button" disabled>Stand</button>
+        </div>
 
-        <br>
-        <button id="hit">Hit</button>
-        <button id="stay">Stay</button>
-        <p id="results"></p>
-    </body>
+        <div id="message" class="message"></div>
+    </div>
+    <script src="blackjack.js"></script>
+</body>
 </html>

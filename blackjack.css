@@ -1,28 +1,81 @@
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('windows_7_logon_screen_wallpaper_official_highres_by_fantomnotphantom_dew43iw.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+    transition: background 0.5s ease-in-out;
+}
+
+.container {
+    max-width: 90%;
+    margin: 5vh auto;
+    padding: 2em;
+    background: url('aero_glass_clipart_texture_by_diamond00744_d671l1n.png') no-repeat center center;
+    backdrop-filter: blur(12px);
+    border-radius: 1.2em;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+h1 {
     text-align: center;
+    font-size: 2rem;
+    color: white;
+    animation: fadeIn 1s ease-in-out;
 }
 
-#dealer-cards img {
-    height: 175px;
-    width: 125px;
-    margin: 1px;
+.game-area {
+    padding: 2em;
+    border-radius: 1em;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease-in-out;
 }
 
-#your-cards img {
-    height: 175px;
-    width: 125px;
-    margin: 1px;
+.dealer-section, .player-section {
+    margin: 2em 0;
+    transform: translateY(0);
+    transition: transform 0.3s ease-in-out;
 }
 
-#hit {
-    width: 100px;
-    height: 50px;
-    font-size: 20px;
+button {
+    font-size: 1.2rem;
+    padding: 0.8em 1.2em;
+    margin: 1em;
+    border: none;
+    border-radius: 0.6em;
+    background: linear-gradient(to bottom, #0078D7, #005A9E);
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
 }
 
-#stay {
-    width: 100px;
-    height: 50px;
-    font-size: 20px;
+button:hover:not(:disabled) {
+    background: linear-gradient(to bottom, #1490E0, #0078D7);
+    transform: scale(1.05);
+}
+
+button:disabled {
+    background: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.message {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 1em;
+    min-height: 2.5em;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    border-radius: 0.5em;
+    transition: all 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
