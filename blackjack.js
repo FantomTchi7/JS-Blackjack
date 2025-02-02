@@ -64,23 +64,23 @@ class BlackjackGame {
     calculateHandValue(hand) {
         let value = 0;
         let aces = 0;
-
+    
         for (const card of hand) {
             if (card.value === '1') {
                 aces += 1;
             }
             value += this.getCardValue(card);
         }
-
-        // Adjust for aces
+    
+        // Adjust for aces only when necessary
         while (value > 21 && aces > 0) {
             value -= 10;
-            aces -= 1;
+            aces--;
         }
-
+    
         return value;
     }
-
+    
     drawCard(isDealer, hidden = false) {
         const card = this.deck.pop();
         const hand = isDealer ? this.dealerHand : this.playerHand;
@@ -88,7 +88,9 @@ class BlackjackGame {
     
         const container = isDealer ? this.dealerCardsContainer : this.playerCardsContainer;
         const cardIndex = hand.length - 1;
-        const x = cardIndex * (this.cardWidth * this.overlapFactor);
+        const maxCards = 8;
+        const adjustedOverlap = hand.length > maxCards ? 0.2 : this.overlapFactor;
+        const x = cardIndex * (this.cardWidth * adjustedOverlap);
     
         const useElement = document.createElementNS("http://www.w3.org/2000/svg", "use");
         useElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
@@ -146,6 +148,11 @@ class BlackjackGame {
         
         this.initializeDeck();
         this.shuffleDeck();
+
+        while (this.deck.length < 4) {
+            this.initializeDeck();
+            this.shuffleDeck();
+        }        
         
         this.drawCard(true, true);
         this.drawCard(true);
@@ -175,10 +182,14 @@ class BlackjackGame {
 
     handleStand() {
         const hiddenCard = document.getElementById('hidden-card');
-        hiddenCard.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
-            `./SVG-cards/svg-cards.svg#${this.dealerHand[0].suit}_${this.dealerHand[0].value}`);
+        if (hiddenCard && this.dealerHand.length > 0) {
+            hiddenCard.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
+                `./SVG-cards/svg-cards.svg#${this.dealerHand[0].suit}_${this.dealerHand[0].value}`);
+        }        
 
-        while (this.calculateHandValue(this.dealerHand) < 17) {
+        while (this.calculateHandValue(this.dealerHand) < 17 || 
+                (this.calculateHandValue(this.dealerHand) === 17 && 
+                this.dealerHand.some(card => card.value === '1'))) {
             this.drawCard(true);
         }
 
@@ -191,7 +202,7 @@ class BlackjackGame {
         const dealerValue = this.calculateHandValue(this.dealerHand);
         
         this.playerSum.textContent = playerValue;
-        this.dealerSum.textContent = this.gameInProgress ? 
+        this.dealerSum.textContent = this.gameInProgress && this.dealerHand.length > 1 ? 
             this.getCardValue(this.dealerHand[1]) : dealerValue;
     }
 
