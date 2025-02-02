@@ -6,8 +6,9 @@ class BlackjackGame {
         this.gameInProgress = false;
         this.cardWidth = 169.075;
         this.cardHeight = 244.640;
+        this.maxHandWidth = 0;
+        this.overlapFactor = 0.3;
         
-        // Initialize UI elements
         this.dealButton = document.getElementById('deal-button');
         this.hitButton = document.getElementById('hit-button');
         this.standButton = document.getElementById('stand-button');
@@ -20,7 +21,6 @@ class BlackjackGame {
         this.closeButton = document.getElementById('close-popup');
         this.dealButton = document.getElementById('deal-button');
 
-        // Bind event handlers
         this.dealButton.addEventListener('click', () => this.startNewGame());
         this.hitButton.addEventListener('click', () => this.handleHit());
         this.standButton.addEventListener('click', () => this.handleStand());
@@ -29,7 +29,7 @@ class BlackjackGame {
             this.dealButton.disabled = false;
         });
 
-        window.addEventListener('resize', () => this.centerHands());
+        window.addEventListener('resize', () => this.resizeHands());
     }
 
     initializeDeck() {
@@ -88,8 +88,7 @@ class BlackjackGame {
     
         const container = isDealer ? this.dealerCardsContainer : this.playerCardsContainer;
         const cardIndex = hand.length - 1;
-        const overlapFactor = 0.3;
-        const x = cardIndex * (this.cardWidth * overlapFactor);
+        const x = cardIndex * (this.cardWidth * this.overlapFactor);
     
         const useElement = document.createElementNS("http://www.w3.org/2000/svg", "use");
         useElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
@@ -102,57 +101,67 @@ class BlackjackGame {
     
         container.appendChild(useElement);
         
-        const newWidth = (hand.length * this.cardWidth * overlapFactor) + (this.cardWidth * (1 - overlapFactor));
-        container.setAttribute("width", newWidth);
-    
-        const containerWidth = container.parentElement.offsetWidth;
-        const leftMargin = (containerWidth - newWidth) / 2;
-        container.style.marginLeft = `${leftMargin}px`;
+        const handWidth = (hand.length * this.cardWidth * this.overlapFactor) + (this.cardWidth * (1 - this.overlapFactor));
+        container.setAttribute("width", handWidth);
         
+        this.maxHandWidth = Math.max(this.maxHandWidth, handWidth);
+        this.resizeHands();
+
         return this.calculateHandValue(hand);
     }
 
-    centerHands() {
+    resizeHands() {
         [this.dealerCardsContainer, this.playerCardsContainer].forEach(container => {
-            const containerWidth = container.parentElement.offsetWidth;
-            const svgWidth = parseFloat(container.getAttribute("width") || 0);
-            const leftMargin = (containerWidth - svgWidth) / 2;
-            container.style.marginLeft = `${leftMargin}px`;
+            container.setAttribute("width", this.maxHandWidth);
+            
+            const gameArea = document.querySelector('.game-area');
+            const containerWidth = gameArea.offsetWidth - (4 * 16);
+            const margin = Math.max(0, (containerWidth - this.maxHandWidth) / 2);
+            
+            container.style.marginLeft = `${margin}px`;
+            container.style.marginRight = `${margin}px`;
+            
+            const cards = container.children;
+            const handLength = container.id === 'dealer-cards' ? this.dealerHand.length : this.playerHand.length;
+            const totalWidth = (handLength * this.cardWidth * this.overlapFactor) + (this.cardWidth * (1 - this.overlapFactor));
+            const offsetX = (this.maxHandWidth - totalWidth) / 2;
+            
+            Array.from(cards).forEach((card, index) => {
+                const x = offsetX + (index * this.cardWidth * this.overlapFactor);
+                card.setAttribute("x", x);
+            });
         });
     }
 
     startNewGame() {
-        // Reset game state
         this.dealerHand = [];
         this.playerHand = [];
         this.gameInProgress = true;
+        this.maxHandWidth = 0;
         
-        // Clear the card containers
         this.dealerCardsContainer.innerHTML = '';
         this.playerCardsContainer.innerHTML = '';
+        this.dealerCardsContainer.setAttribute("width", 0);
+        this.playerCardsContainer.setAttribute("width", 0);
         
-        // Initialize and shuffle deck
         this.initializeDeck();
         this.shuffleDeck();
         
-        // Deal initial cards
-        this.drawCard(true, true); // Dealer's hidden card
-        this.drawCard(true); // Dealer's visible card
-        this.drawCard(false); // Player's first card
-        this.drawCard(false); // Player's second card
+        this.drawCard(true, true);
+        this.drawCard(true);
+        this.drawCard(false);
+        this.drawCard(false);
         
-        // Update UI
         this.updateSums();
         this.hitButton.disabled = false;
         this.standButton.disabled = false;
         this.dealButton.disabled = true;
         
-        // Check for natural blackjack
         if (this.calculateHandValue(this.playerHand) === 21) {
             this.handleStand();
         }
 
-        this.centerHands();
+        this.resizeHands();
     }
 
     handleHit() {
@@ -165,12 +174,10 @@ class BlackjackGame {
     }
 
     handleStand() {
-        // Reveal dealer's hidden card
         const hiddenCard = document.getElementById('hidden-card');
         hiddenCard.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
             `./SVG-cards/svg-cards.svg#${this.dealerHand[0].suit}_${this.dealerHand[0].value}`);
 
-        // Dealer must hit on 16 and stand on 17
         while (this.calculateHandValue(this.dealerHand) < 17) {
             this.drawCard(true);
         }
@@ -184,7 +191,6 @@ class BlackjackGame {
         const dealerValue = this.calculateHandValue(this.dealerHand);
         
         this.playerSum.textContent = playerValue;
-        // Only show the value of the visible dealer card during play
         this.dealerSum.textContent = this.gameInProgress ? 
             this.getCardValue(this.dealerHand[1]) : dealerValue;
     }
@@ -218,7 +224,6 @@ class BlackjackGame {
     }
 }
 
-// Start the game when the page loads
 window.onload = () => {
     new BlackjackGame();
 };

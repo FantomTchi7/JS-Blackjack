@@ -35,7 +35,10 @@ h1 {
 
 .game-area {
     max-width: fit-content;
-    padding: 2em;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 2em;
+    padding-right: 2em;
     margin-left: auto;
     margin-right: auto;
     border-radius: 1.2rem;
@@ -49,6 +52,12 @@ h1 {
     margin: 2em 0;
     transform: translateY(0);
     transition: transform 0.3s ease-in-out;
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .controls {
