@@ -66,20 +66,21 @@ class BlackjackGame {
         let aces = 0;
     
         for (const card of hand) {
-            if (card.value === '1') {
-                aces += 1;
+            if (card.value === '1') { // Ace
+                aces++;
+                value += 11;
+            } else {
+                value += this.getCardValue(card);
             }
-            value += this.getCardValue(card);
         }
     
-        // Adjust for aces only when necessary
         while (value > 21 && aces > 0) {
             value -= 10;
             aces--;
         }
     
         return value;
-    }
+    }    
     
     drawCard(isDealer, hidden = false) {
         const card = this.deck.pop();
