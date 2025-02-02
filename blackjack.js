@@ -13,14 +13,23 @@ class BlackjackGame {
         this.standButton = document.getElementById('stand-button');
         this.dealerCardsContainer = document.getElementById('dealer-cards');
         this.playerCardsContainer = document.getElementById('player-cards');
-        this.messageElement = document.getElementById('message');
         this.dealerSum = document.getElementById('dealer-sum');
         this.playerSum = document.getElementById('player-sum');
+        this.popup = document.getElementById('message');
+        this.popupText = document.getElementById('popup-text');
+        this.closeButton = document.getElementById('close-popup');
+        this.dealButton = document.getElementById('deal-button');
 
         // Bind event handlers
         this.dealButton.addEventListener('click', () => this.startNewGame());
         this.hitButton.addEventListener('click', () => this.handleHit());
         this.standButton.addEventListener('click', () => this.handleStand());
+        this.closeButton.addEventListener('click', () => {
+            this.popup.classList.remove('show');
+            this.dealButton.disabled = false;
+        });
+
+        window.addEventListener('resize', () => this.centerHands());
     }
 
     initializeDeck() {
@@ -76,12 +85,12 @@ class BlackjackGame {
         const card = this.deck.pop();
         const hand = isDealer ? this.dealerHand : this.playerHand;
         hand.push(card);
-
+    
         const container = isDealer ? this.dealerCardsContainer : this.playerCardsContainer;
         const cardIndex = hand.length - 1;
         const overlapFactor = 0.3;
         const x = cardIndex * (this.cardWidth * overlapFactor);
-
+    
         const useElement = document.createElementNS("http://www.w3.org/2000/svg", "use");
         useElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", 
             hidden ? "./SVG-cards/svg-cards.svg#back" : `./SVG-cards/svg-cards.svg#${card.suit}_${card.value}`);
@@ -90,10 +99,26 @@ class BlackjackGame {
         if (hidden) {
             useElement.setAttribute("id", "hidden-card");
         }
-
+    
         container.appendChild(useElement);
         
+        const newWidth = (hand.length * this.cardWidth * overlapFactor) + (this.cardWidth * (1 - overlapFactor));
+        container.setAttribute("width", newWidth);
+    
+        const containerWidth = container.parentElement.offsetWidth;
+        const leftMargin = (containerWidth - newWidth) / 2;
+        container.style.marginLeft = `${leftMargin}px`;
+        
         return this.calculateHandValue(hand);
+    }
+
+    centerHands() {
+        [this.dealerCardsContainer, this.playerCardsContainer].forEach(container => {
+            const containerWidth = container.parentElement.offsetWidth;
+            const svgWidth = parseFloat(container.getAttribute("width") || 0);
+            const leftMargin = (containerWidth - svgWidth) / 2;
+            container.style.marginLeft = `${leftMargin}px`;
+        });
     }
 
     startNewGame() {
@@ -101,8 +126,6 @@ class BlackjackGame {
         this.dealerHand = [];
         this.playerHand = [];
         this.gameInProgress = true;
-        this.messageElement.textContent = '';
-        this.messageElement.className = 'message';
         
         // Clear the card containers
         this.dealerCardsContainer.innerHTML = '';
@@ -128,6 +151,8 @@ class BlackjackGame {
         if (this.calculateHandValue(this.playerHand) === 21) {
             this.handleStand();
         }
+
+        this.centerHands();
     }
 
     handleHit() {
@@ -179,13 +204,16 @@ class BlackjackGame {
         }
     }
 
+    showMessage(message) {
+        this.popupText.textContent = message;
+        this.popup.classList.add('show');
+    }
+
     endGame(message, result) {
         this.gameInProgress = false;
-        this.messageElement.textContent = message;
-        this.messageElement.className = `message ${result}`;
+        this.showMessage(message);
         this.hitButton.disabled = true;
         this.standButton.disabled = true;
-        this.dealButton.disabled = false;
         this.updateSums();
     }
 }
